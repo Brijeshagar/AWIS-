@@ -1,7 +1,8 @@
 # =============================================================
 # .dockerignore — AWIS Repository Root
-# Prevents unnecessary files from being sent to the Docker build context.
-# Smaller build context = faster builds.
+# Prevents unnecessary files from being sent to the Docker build
+# context. Smaller context = faster builds and less data sent
+# to the Docker daemon.
 # =============================================================
 
 # Python caches & compiled files
@@ -11,38 +12,36 @@ __pycache__/
 *.pyd
 *.egg-info/
 .eggs/
-dist/
-build/
 *.spec
 
 # Virtual environments
 .venv/
 venv/
 env/
-.env/
+ENV/
+
+# Environment files (secrets — never bake into images)
+.env
+.env.local
+.env.*.local
 
 # Large training / data files (not needed at runtime)
 ml_features.csv
-train_model.py
 tuning_results.json
-confusion_matrix.png
-feature_importance.png
-er_diagram.puml
-generate_appendix.py
 
 # The SQLite database itself — runtime data lives in the Docker volume
 awis.db
 awis.db-shm
 awis.db-wal
 
-# Frontend node_modules (built inside the container)
+# Frontend node_modules and build output (rebuilt inside the container)
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/.eslintcache
 
 # Git / IDE / OS
 .git/
-.gitignore
 .gitattributes
 .vscode/
 .idea/
@@ -50,18 +49,18 @@ frontend/.vite/
 *.swo
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Documentation & reports (not needed inside the container)
-*.md
-*.puml
-*.pdf
+# Logs
+*.log
+logs/
 
-# Docker files themselves (no need to include in context)
-docker-compose.yml
-docker-compose.*.yml
-Dockerfile*
-.dockerignore
+# Test / development-only files
+generate_appendix.py
+er_diagram.puml
+confusion_matrix.png
+feature_importance.png
 
-# Test / dev files
-mock_portal.html
-widget.js
+# NOTE: README.md, LICENSE, .gitignore, start scripts, Dockerfiles,
+# docker-compose.yml, nginx.conf, requirements.txt are all intentionally
+# included so the build context is complete.
