@@ -1,0 +1,141 @@
+/* ── Page ────────────────────────────────────────────────────────────────── */
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analytics-error {
+  background: #e5484d18;
+  border: 1px solid #e5484d55;
+  color: #e5484d;
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-size: 0.88rem;
+}
+
+/* ── KPI strip ───────────────────────────────────────────────────────────── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 760px) {
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpi-card {
+  background: #1e2130;
+  border: 1px solid #2e3348;
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s;
+}
+.kpi-card:hover { border-color: #4f6ef7; }
+.kpi-card--alert { border-color: #f8717155; }
+
+.kpi-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  line-height: 1;
+}
+.kpi-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.kpi-card--alert .kpi-value { color: #f87171; }
+
+.kpi-skeleton {
+  height: 90px;
+  border-radius: 10px;
+  background: #1e2130;
+  animation: shimmer 1.4s infinite;
+}
+
+/* ── Chart card ──────────────────────────────────────────────────────────── */
+.chart-card {
+  background: #1e2130;
+  border: 1px solid #2e3348;
+  border-radius: 12px;
+  padding: 22px 24px 18px;
+}
+
+.chart-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 3px;
+}
+.chart-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+.chart-empty {
+  color: #475569;
+  font-size: 0.85rem;
+  padding: 20px 0;
+  text-align: center;
+}
+
+/* ── Legend ──────────────────────────────────────────────────────────────── */
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Custom tooltip ──────────────────────────────────────────────────────── */
+.chart-tip {
+  background: #151823;
+  border: 1px solid #2e3348;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.chart-tip__title {
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+  font-size: 0.83rem;
+}
+.chart-tip strong { color: #e2e8f0; }
+
+/* ── Skeleton ────────────────────────────────────────────────────────────── */
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: #252a3a;
+  animation: shimmer 1.4s infinite;
+}
+.skeleton-chart {
+  height: 240px;
+  border-radius: 8px;
+  background: #252a3a;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1;   }
+  100% { opacity: 0.6; }
+}

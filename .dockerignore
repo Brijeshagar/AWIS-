@@ -1,0 +1,67 @@
+# =============================================================
+# .dockerignore — AWIS Repository Root
+# Prevents unnecessary files from being sent to the Docker build context.
+# Smaller build context = faster builds.
+# =============================================================
+
+# Python caches & compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Large training / data files (not needed at runtime)
+ml_features.csv
+train_model.py
+tuning_results.json
+confusion_matrix.png
+feature_importance.png
+er_diagram.puml
+generate_appendix.py
+
+# The SQLite database itself — runtime data lives in the Docker volume
+awis.db
+awis.db-shm
+awis.db-wal
+
+# Frontend node_modules (built inside the container)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Git / IDE / OS
+.git/
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Documentation & reports (not needed inside the container)
+*.md
+*.puml
+*.pdf
+
+# Docker files themselves (no need to include in context)
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile*
+.dockerignore
+
+# Test / dev files
+mock_portal.html
+widget.js

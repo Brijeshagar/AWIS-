@@ -1,0 +1,71 @@
+# =============================================================================
+# AWIS Backend — FastAPI + Uvicorn
+# =============================================================================
+# Stage 1: builder — install all Python dependencies into a venv
+# =============================================================================
+FROM python:3.11-slim AS builder
+
+# System deps needed to compile some packages (e.g. numpy, xgboost native libs)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+# Create an isolated virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy only the requirements first so Docker caches this layer
+# independently of source changes (efficient layer caching).
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# =============================================================================
+# Stage 2: runtime — lean production image
+# =============================================================================
+FROM python:3.11-slim AS runtime
+
+# libgomp1 is required at runtime by XGBoost
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the pre-built virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create a non-root user for security
+RUN groupadd -r awis && useradd -r -g awis awis
+
+WORKDIR /app
+
+# Copy application source files
+COPY main.py       .
+COPY database.py   .
+COPY model.pkl     .
+COPY feature_importance.json .
+
+# The SQLite database will live in /app/data (mounted as a Docker volume)
+RUN mkdir -p /app/data && chown -R awis:awis /app
+
+USER awis
+
+# Expose FastAPI port
+EXPOSE 8000
+
+# Configurable via docker-compose environment variables
+ENV HOST=0.0.0.0
+ENV PORT=8000
+ENV WORKERS=1
+ENV DB_PATH=/app/data/awis.db
+
+# Health check — hits /health endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+# Entrypoint: run uvicorn directly (no shell wrapper needed)
+CMD ["sh", "-c", "uvicorn main:app --host $HOST --port $PORT --workers $WORKERS"]

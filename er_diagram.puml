@@ -1,0 +1,47 @@
+@startuml er_diagram
+skinparam monochrome true
+skinparam shadowing false
+
+title AWIS - Entity Relationship Diagram
+
+entity "submissions" as Submissions {
+  * id : Integer <<PK>>
+  --
+  * form_data : Text (JSON)
+  * risk_score : Float
+  top_reasons : Text (JSON)
+  * submitted_at : DateTime
+  source : String(100)
+  city : String(100)
+  permit_type : String(100)
+  zone : String(100)
+}
+
+entity "audit_log" as AuditLog {
+  * id : Integer <<PK>>
+  --
+  submission_id : Integer <<FK>>
+  * event_type : String(100)
+  old_value : Text
+  new_value : Text
+  * changed_by : String(200)
+  * changed_at : DateTime
+}
+
+entity "rules" as Rules {
+  * id : Integer <<PK>>
+  --
+  * rule_name : String(200) <<UNIQUE>>
+  * rule_type : String(100)
+  zone : String(100)
+  permit_type : String(100)
+  * condition : String(200)
+  * value : String(200)
+  * active : Boolean
+  * created_at : DateTime
+  * updated_at : DateTime
+}
+
+Submissions "1" -- "0..*" AuditLog : "has history in >"
+
+@enduml

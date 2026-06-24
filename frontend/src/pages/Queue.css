@@ -1,0 +1,144 @@
+/* ── toolbar ─────────────────────────────────────────────────────────────── */
+.queue-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.queue-count {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+.queue-refresh {
+  font-size: 0.8rem;
+  padding: 6px 14px;
+}
+
+/* ── error ───────────────────────────────────────────────────────────────── */
+.queue-error {
+  background: #e5484d18;
+  border: 1px solid #e5484d55;
+  color: #e5484d;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+/* ── loading skeletons ───────────────────────────────────────────────────── */
+.queue-loading { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-row {
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #1e2130 25%, #252a3a 50%, #1e2130 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── empty state ─────────────────────────────────────────────────────────── */
+.queue-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: #64748b;
+}
+.queue-empty__icon { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+.queue-empty p     { font-size: 0.95rem; margin-bottom: 4px; }
+.queue-empty__sub  { font-size: 0.8rem; color: #475569; }
+
+/* ── table wrapper (horizontal scroll) ─────────────────────────────────── */
+.queue-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #2e3348;
+  border-radius: 10px;
+}
+
+/* ── table ───────────────────────────────────────────────────────────────── */
+.queue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  white-space: nowrap;
+}
+
+.queue-table thead tr {
+  background: #151823;
+  border-bottom: 1px solid #2e3348;
+}
+.queue-table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.queue-table tbody tr {
+  border-bottom: 1px solid #1e2130;
+  transition: background 0.15s;
+}
+.queue-table tbody tr:last-child { border-bottom: none; }
+.queue-table tbody tr:hover { background: #ffffff06; }
+
+.queue-table td {
+  padding: 11px 14px;
+  color: #94a3b8;
+  vertical-align: middle;
+}
+
+/* subtle left accent by status */
+.row--rejected td:first-child { border-left: 3px solid #e5484d; }
+.row--approved td:first-child { border-left: 3px solid #0d9f6e; }
+
+.col-id     { color: #64748b; font-size: 0.78rem; width: 56px; }
+.col-reason { max-width: 200px; overflow: hidden; text-overflow: ellipsis; color: #cbd5e1; }
+.col-date   { font-size: 0.78rem; color: #64748b; }
+
+/* ── risk pill ───────────────────────────────────────────────────────────── */
+.risk-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 52px;
+  text-align: center;
+}
+.risk-pill--critical { background: #450a0a; color: #f87171; }
+.risk-pill--high     { background: #431407; color: #fb923c; }
+.risk-pill--medium   { background: #422006; color: #fbbf24; }
+.risk-pill--low      { background: #052e16; color: #4ade80; }
+
+/* ── status badge ────────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.status-badge--rejected { background: #450a0a; color: #f87171; border: 1px solid #e5484d55; }
+.status-badge--approved { background: #052e16; color: #4ade80; border: 1px solid #0d9f6e55; }
+
+/* ── pagination ──────────────────────────────────────────────────────────── */
+.queue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+.pagination-info {
+  font-size: 0.8rem;
+  color: #64748b;
+}

@@ -1,0 +1,95 @@
+# =============================================================================
+# AWIS — Docker Compose
+# =============================================================================
+# Start everything:  docker compose up --build
+# Stop:              docker compose down
+# Stop + wipe data:  docker compose down -v
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # backend — FastAPI + Uvicorn + XGBoost ML model
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .                    # repo root (contains main.py, database.py, model.pkl …)
+      dockerfile: Dockerfile.backend
+    container_name: awis-backend
+    restart: unless-stopped
+
+    environment:
+      # Database path — points to the named volume mount below
+      DB_PATH: /app/data/awis.db
+      # Uvicorn settings (override here or in .env)
+      HOST: 0.0.0.0
+      PORT: "8000"
+      WORKERS: "1"
+
+    ports:
+      # Expose FastAPI on host port 8000
+      - "8000:8000"
+
+    volumes:
+      # Persist the SQLite database across container restarts / rebuilds
+      - awis_db_data:/app/data
+
+    networks:
+      - awis_net
+
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ---------------------------------------------------------------------------
+  # frontend — React SPA served by Nginx
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .                    # repo root (Dockerfile copies from frontend/ subfolder)
+      dockerfile: frontend/Dockerfile
+      args:
+        # VITE_API_URL is baked into the JS bundle at build time.
+        # The browser running on the HOST machine calls localhost:8000
+        # (because the backend container exposes port 8000 on the host).
+        VITE_API_URL: http://localhost:8000
+    container_name: awis-frontend
+    restart: unless-stopped
+
+    ports:
+      # Serve the React SPA on host port 3000
+      - "3000:80"
+
+    networks:
+      - awis_net
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# ---------------------------------------------------------------------------
+# Named volumes
+# ---------------------------------------------------------------------------
+volumes:
+  awis_db_data:
+    driver: local
+    # The SQLite files (awis.db, awis.db-shm, awis.db-wal) live here.
+    # They survive  `docker compose down` but are removed with `docker compose down -v`.
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
+networks:
+  awis_net:
+    driver: bridge

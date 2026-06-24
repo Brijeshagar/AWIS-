@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AWIS &mdash; Adaptive Workflow Intervention System</title>
+  <meta name="description" content="Government Permit Application Portal with AI-powered rejection risk assessment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f1f5f9;
+      --card:      #ffffff;
+      --border:    #e2e8f0;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --accent:    #4f46e5;
+      --accent-lt: #eef2ff;
+      --success:   #16a34a;
+      --danger:    #dc2626;
+      --radius:    12px;
+      --shadow:    0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    .portal-header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      color: #fff;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 72px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.3);
+    }
+    .portal-emblem {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,.25);
+    }
+    .portal-header-text h1 { font-size: 16px; font-weight: 700; letter-spacing: .3px; }
+    .portal-header-text p  { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 1px; }
+    .portal-header-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,.85);
+      letter-spacing: .5px;
+    }
+
+    /* ── Layout ── */
+    .portal-container {
+      max-width: 860px;
+      margin: 32px auto;
+      padding: 0 24px 60px;
+    }
+
+    /* breadcrumb */
+    .breadcrumb {
+      font-size: 12px; color: var(--muted);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .breadcrumb span { color: var(--accent); font-weight: 500; }
+
+    /* page title */
+    .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .page-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+    /* progress bar */
+    .progress-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .progress-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .progress-bar-bg { height: 6px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
+    .progress-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      border-radius: 6px;
+      transition: width .4s ease;
+    }
+
+    /* ── Cards ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .form-card-title {
+      font-size: 13px; font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .form-card-title .card-icon { font-size: 16px; }
+
+    /* ── Grid ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .span-2 { grid-column: span 2; }
+
+    /* ── Field ── */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+    }
+    .field input[type="number"],
+    .field input[type="text"],
+    .field select {
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+    }
+    .field-hint { font-size: 10px; color: #94a3b8; }
+
+    /* ── Checkbox grid ── */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .checkbox-item:hover { border-color: var(--accent); background: var(--accent-lt); }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--accent);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .checkbox-item label {
+      font-size: 12px; font-weight: 500; color: var(--text);
+      cursor: pointer; line-height: 1.3;
+    }
+    .checkbox-item input:checked ~ label { color: var(--accent); }
+    .checkbox-item:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--accent-lt);
+    }
+
+    /* ── Risk score auto badge ── */
+    .risk-auto {
+      display: flex; align-items: center; gap: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px; color: var(--muted);
+    }
+    .risk-auto strong { font-size: 20px; font-weight: 700; color: var(--text); }
+
+    /* ── Submit ── */
+    .form-actions {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 8px;
+    }
+    #awis-submit-btn {
+      height: 46px; padding: 0 32px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: opacity .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(79,70,229,.4);
+    }
+    #awis-submit-btn:hover:not(:disabled) {
+      opacity: .92; transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(79,70,229,.5);
+    }
+    #awis-submit-btn:disabled {
+      opacity: .4; cursor: not-allowed;
+      box-shadow: none;
+    }
+    .form-actions-note { font-size: 11px; color: var(--muted); }
+
+    /* ── Info bar ── */
+    .info-bar {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      border-radius: 10px; padding: 12px 16px;
+      font-size: 12px; color: #1d4ed8; margin-bottom: 20px;
+    }
+    .info-bar .info-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    @media (max-width: 640px) {
+      .form-grid, .form-grid.cols-3 { grid-template-columns: 1fr; }
+      .span-2 { grid-column: span 1; }
+      .portal-header { padding: 0 16px; }
+      .portal-container { padding: 0 12px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────── -->
+<header class="portal-header">
+  <div class="portal-emblem">&#x1F3DB;</div>
+  <div class="portal-header-text">
+    <h1>AWIS &mdash; Adaptive Workflow Intervention System</h1>
+    <p>Ministry of Urban Development &amp; Infrastructure &bull; Digital Services Portal</p>
+  </div>
+  <div class="portal-header-badge">BETA</div>
+</header>
+
+<!-- ── Main ──────────────────────────────────────────────────── -->
+<main class="portal-container">
+
+  <nav class="breadcrumb">Home &rsaquo; Services &rsaquo; <span>New Permit Application</span></nav>
+
+  <h2 class="page-title">Permit / License Application Form</h2>
+  <p class="page-subtitle">
+    Complete all sections below. The AI Risk Assessment panel on the right will update in real time as you fill the form.
+  </p>
+
+  <div class="info-bar">
+    <span class="info-icon">&#x2139;</span>
+    <span>
+      <strong>AI-Assisted Review:</strong> This portal uses AWIS to predict rejection risk in real time.
+      A high risk score does not block submission — it flags areas to address before final review.
+    </span>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Form Completion</span><span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar"></div></div>
+  </div>
+
+  <form id="awis-form" novalidate>
+
+    <!-- ── 1. Application Info ── -->
+    <div class="form-card">
+      <div class="form-card-title"><span class="card-icon">&#x1F4CB;</span> Application Details</div>
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="f-source">Application Source</label>
+          <select id="f-source" data-awis="source_enc" required>
+            <option value="" disabled selected>Select source</option>
+            <option value="0">Online Portal</option>
+            <option value="1">District Office</option>
+            <option value="2">Municipal Corporation</option>
+            <option value="3">State Agency</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-permit">Permit Type</label>
+          <select id="f-permit" data-awis="permit_type_enc" required>
+            <option value="" disabled selected>Select permit type</option>
+            <option value="0">Residential Building</option>
+            <option value="1">Commercial Building</option>
+            <option value="2">Industrial</option>
+            <option value="3">Mixed Use</option>
+            <option value="4">Infrastructure / Road</option>
+            <option value="5">Agricultural</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-year">Application Year</label>
+          <input type="number" id="f-year" data-awis="year"
+            min="2000" max="2100" placeholder="e.g. 2024" required />
+        </div>
+
+        <div class="field">
+          <label for="f-month">Application Month</label>
+          <select id="f-month" data-awis="month" required>
+            <option value="" disabled selected>Select month</option>
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 2. Location ── -->
+    <div class="form-card">
+      <div class="form-card-title"><span class="card-icon">&#x1F4CD;</span> Location &amp; Zone</div>
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="f-zone">Zone Classification</label>
+          <select id="f-zone" data-awis="zone_enc" required>
+            <option value="" disabled selected>Select zone</option>
+            <option value="0">Residential Zone</option>
+            <option value="1">Commercial Zone</option>
+            <option value="2">Industrial Zone</option>
+            <option value="3">Agricultural Zone</option>
+            <option value="4">Mixed-Use Zone</option>
+            <option value="5">Special / Eco-Sensitive Zone</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-city">City / District</label>
+          <select id="f-city" data-awis="city_enc" required>
+            <option value="" disabled selected>Select city</option>
+            <option value="0">Mumbai</option>
+            <option value="1">Delhi</option>
+            <option value="2">Bangalore</option>
+            <option value="3">Chennai</option>
+            <option value="4">Kolkata</option>
+            <option value="5">Hyderabad</option>
+            <option value="6">Pune</option>
+            <option value="7">Ahmedabad</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-area">Plot Area (sq. m)</label>
+          <input type="number" id="f-area" data-awis="area_sqm"
+            min="1" step="0.1" placeholder="e.g. 450.0" required />
+          <span class="field-hint">Enter total plot area in square metres</span>
+        </div>
+
+        <div class="field">
+          <label for="f-cost">Est. Construction Cost (&#x20B9; lakhs)</label>
+          <input type="number" id="f-cost" data-awis="construction_cost"
+            min="0" step="0.01" placeholder="e.g. 125.00" required />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 3. Documents ── -->
+    <div class="form-card">
+      <div class="form-card-title"><span class="card-icon">&#x1F4C4;</span> Documentation Status</div>
+
+      <div class="form-grid" style="margin-bottom:18px;">
+        <div class="field">
+          <label for="f-doc-count">Total Documents Submitted</label>
+          <input type="number" id="f-doc-count" data-awis="doc_count"
+            min="0" max="20" placeholder="e.g. 6" required />
+        </div>
+        <div class="field">
+          <label for="f-missing">Missing / Incomplete Documents</label>
+          <input type="number" id="f-missing" data-awis="missing_doc_count"
+            min="0" max="20" placeholder="e.g. 2" required />
+          <span class="field-hint">Higher missing count increases rejection risk</span>
+        </div>
+      </div>
+
+      <div class="form-card-title" style="font-size:11px;margin-bottom:12px;">
+        Mark all documents already submitted
+      </div>
+
+      <div class="checkbox-grid">
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-title-deed" data-awis="has_title_deed" />
+          <label for="f-title-deed">&#x1F3E0; Title Deed</label>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-site-plan" data-awis="has_site_plan" />
+          <label for="f-site-plan">&#x1F5FA; Site Plan</label>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-noc-fire" data-awis="has_noc_fire" />
+          <label for="f-noc-fire">&#x1F525; Fire NOC</label>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-noc-env" data-awis="has_noc_env" />
+          <label for="f-noc-env">&#x1F333; Environmental NOC</label>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-struct" data-awis="has_struct_cert" />
+          <label for="f-struct">&#x1F3D7; Structural Certificate</label>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-crz" data-awis="has_crz_cert" />
+          <label for="f-crz">&#x1F30A; CRZ Certificate</label>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-pan" data-awis="pan_valid" />
+          <label for="f-pan">&#x1F4B3; PAN Valid</label>
+        </label>
+
+      </div>
+    </div>
+
+    <!-- ── 4. Compliance ── -->
+    <div class="form-card">
+      <div class="form-card-title"><span class="card-icon">&#x2696;</span> Compliance Flags</div>
+
+      <div class="checkbox-grid" style="margin-bottom:18px;">
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-zone-conflict" data-awis="zone_type_conflict" />
+          <label for="f-zone-conflict">&#x26A0; Zone Type Conflict</label>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="f-fsi" data-awis="area_exceeds_fsi" />
+          <label for="f-fsi">&#x1F4CF; Area Exceeds FSI</label>
+        </label>
+      </div>
+
+      <div class="field" style="max-width:260px;">
+        <label for="f-risk-score">Pre-computed Risk Score (0&ndash;10)</label>
+        <input type="number" id="f-risk-score" data-awis="risk_score"
+          min="0" max="10" step="1" placeholder="0" value="0" required />
+        <span class="field-hint">Internal risk tier assigned at intake</span>
+      </div>
+    </div>
+
+    <!-- ── Submit ── -->
+    <div class="form-card">
+      <div class="form-actions">
+        <button type="button" id="awis-submit-btn" disabled>
+          &#x1F4E4; Submit Application
+        </button>
+        <span class="form-actions-note">
+          Fill at least 15 fields to enable submission.<br>
+          The AI widget updates live as you type.
+        </span>
+      </div>
+    </div>
+
+  </form>
+</main>
+
+<script>
+  // Progress bar driven by form field fill count
+  (function() {
+    const TOTAL_FIELDS = 20;
+    function updateProgress() {
+      const fields = document.querySelectorAll('[data-awis]');
+      let filled = 0;
+      fields.forEach(el => {
+        if (el.type === 'checkbox') { filled++; return; }
+        if (el.value.trim() !== '') filled++;
+      });
+      const pct = Math.round((filled / TOTAL_FIELDS) * 100);
+      document.getElementById('prog-bar').style.width  = pct + '%';
+      document.getElementById('prog-pct').textContent = pct + '%';
+    }
+    document.addEventListener('input',  updateProgress);
+    document.addEventListener('change', updateProgress);
+  })();
+</script>
+
+<!-- AI Widget -->
+<script src="widget.js"></script>
+
+</body>
+</html>
