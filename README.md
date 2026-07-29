@@ -64,6 +64,17 @@ The system includes:
 | 🔌 **REST API** | Swagger UI (`/docs`) and ReDoc (`/redoc`) auto-generated documentation |
 
 ---
+## My Contributions
+
+As part of the AWIS development team, my contributions included:
+
+- Performed process mining and workflow analysis to understand historical permit approval patterns.
+- Cleaned and preprocessed large-scale permit application datasets prior to model training.
+- Assisted in feature preparation and validation for the machine learning pipeline.
+- Implemented backend data processing logic supporting model input preparation.
+- Collaborated with the team during model evaluation and system integration.
+
+---
 
 ## 🏗️ Architecture
 
